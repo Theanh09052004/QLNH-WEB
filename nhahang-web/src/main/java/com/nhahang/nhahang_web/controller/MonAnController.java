@@ -47,7 +47,6 @@ public class MonAnController {
         return "redirect:/monan";
     }
 
-
     @GetMapping("/edit/{id}")
     public String editForm(@PathVariable int id, Model model) {
         MonAn monAn = monAnService.getById(id);
@@ -73,8 +72,7 @@ public class MonAnController {
         monAnService.update(monAn);
         return "redirect:/monan";
     }
-
-
+    
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable int id) {
         monAnService.delete(id);

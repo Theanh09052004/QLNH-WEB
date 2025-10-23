@@ -11,5 +11,5 @@ public interface BanService {
     void delete(int id);
     List<Ban> search(String keyword);
     boolean existsByTenBan(String tenBan);
-    List<Ban> getBansTrong();  // ✅ thêm dòng này
+    List<Ban> getBansTrong();
 }
