@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Món Ăn</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f9f9f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        h2 {
+            color: #6f42c1;
+            font-weight: 600;
+        }
+        .search-bar, .form-add {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #6f42c1;
+            box-shadow: 0 4px 15px rgba(111, 66, 193, 0.1);
+        }
+        .table {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(111, 66, 193, 0.05);
+        }
+        .btn-sm i {
+            margin-right: 4px;
+        }
+        .btn-primary, .btn-outline-primary {
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+        }
+        .btn-primary:hover, .btn-outline-primary:hover {
+            background-color: #5a32a3;
+            border-color: #502b94;
+        }
+        .btn-success {
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+        }
+        .btn-success:hover {
+            background-color: #5a32a3;
+            border-color: #502b94;
+        }
+        .table-purple {
+            background-color: #e6dcf6;
+        }
+    </style>
+</head>
+<body class="container py-4">
+
+    <div class="mb-3">
+        <a href="/" class="btn btn-outline-secondary"><i class="fas fa-home"></i> Trang chủ</a>
+    </div>
+
+    <h2 class="text-center mb-4">Quản Lý Thực Đơn</h2>
+
+    <!-- Tìm kiếm -->
+    <div class="search-bar mb-4">
+        <form th:action="@{/monan}" method="get" class="input-group">
+            <input type="text" class="form-control" name="keyword" th:value="${keyword}" placeholder="Tìm theo tên món ăn...">
+            <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i> Tìm</button>
+        </form>
+    </div>
+
+    <!-- Form thêm -->
+    <div class="form-add mb-4">
+        <form th:action="@{/monan/add}" method="post" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" class="form-control" name="tenMon" placeholder="Tên món ăn" required>
+                <div class="text-danger mt-1" th:if="${errorAdd != null}" th:text="${errorAdd}"></div>
+            </div>
+            <div class="col-md-3">
+                <input type="number" step="1000" class="form-control" name="giaTien" placeholder="Giá tiền (VND)" required>
+            </div>
+            <div class="col-md-3">
+                <select name="loaiMonAn.id" class="form-select" required>
+                    <option value="">-- Chọn loại món ăn --</option>
+                    <option th:each="loai : ${loaiList}" th:value="${loai.id}" th:text="${loai.tenLoai}"></option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="fas fa-plus-circle"></i> Thêm mới
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Thông báo -->
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <!-- Bảng danh sách -->
+    <table class="table table-bordered table-hover align-middle text-center">
+        <thead class="table-purple">
+            <tr>
+                <th>ID</th>
+                <th>Tên món</th>
+                <th>Giá tiền</th>
+                <th>Loại món ăn</th>
+                <th>Số lượng tồn</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="m : ${list}">
+                <td th:text="${m.id}"></td>
+                <td th:text="${m.tenMon}"></td>
+                <td th:text="${#numbers.formatDecimal(m.giaTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                <td th:text="${m.loaiMonAn != null ? m.loaiMonAn.tenLoai : '---'}"></td>
+                <td th:text="${m.soLuong}"></td> 
+                <td>
+                    <a th:href="@{/monan/edit/{id}(id=${m.id})}" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit"></i> Sửa
+                    </a>
+                    <a th:href="@{/monan/delete/{id}(id=${m.id})}" onclick="return confirm('Xác nhận xóa?')" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash-alt"></i> Xóa
+                    </a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(list)}">
+                <td colspan="5" class="text-danger">Không có món ăn nào.</td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>

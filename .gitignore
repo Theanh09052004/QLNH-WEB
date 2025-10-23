@@ -1,0 +1,20 @@
+# Java Web / Spring Boot
+
+# Build
+target/
+*.war
+*.jar
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.iml
+nbproject/private/
+build/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+

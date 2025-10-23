@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Báo Cáo Thống Kê</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        h2 {
+            color: #0d6efd; /* xanh dương chủ đạo */
+            font-weight: 600;
+        }
+        .card-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #0d6efd;
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.1);
+        }
+        .btn-primary, .btn-outline-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .btn-primary:hover, .btn-outline-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+        .btn-switch {
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .table {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.05);
+        }
+        .table-primary {
+            background-color: #dbeafe;
+        }
+        .text-danger {
+            font-weight: 600;
+        }
+        .text-success {
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="container py-4">
+
+    <div class="mb-3">
+        <a href="/" class="btn btn-outline-secondary">
+            <i class="fas fa-home"></i> Trang chủ
+        </a>
+    </div>
+
+    <h2 class="text-center mb-4">Báo Cáo Thống Kê</h2>
+
+    <!-- Nút chọn kiểu thống kê -->
+    <div class="card-box text-center mb-4">
+        <div class="btn-group" role="group">
+            <a th:href="@{/thongke(kieu='ngay')}" 
+               th:classappend="${kieu == 'ngay'} ? 'btn btn-primary btn-sm btn-switch' : 'btn btn-outline-primary btn-sm btn-switch'">
+               <i class="fa-solid fa-calendar-day"></i> Theo ngày
+            </a>
+            <a th:href="@{/thongke(kieu='thang')}" 
+               th:classappend="${kieu == 'thang'} ? 'btn btn-primary btn-sm btn-switch' : 'btn btn-outline-primary btn-sm btn-switch'">
+               <i class="fa-solid fa-calendar-alt"></i> Theo tháng
+            </a>
+            <a th:href="@{/thongke(kieu='nam')}" 
+               th:classappend="${kieu == 'nam'} ? 'btn btn-primary btn-sm btn-switch' : 'btn btn-outline-primary btn-sm btn-switch'">
+               <i class="fa-solid fa-calendar"></i> Theo năm
+            </a>
+        </div>
+    </div>
+
+    <!-- Bộ lọc tìm kiếm -->
+    <div class="card-box mb-4">
+        <form th:action="@{/thongke}" method="get" class="row g-3 align-items-center justify-content-center">
+            <input type="hidden" name="kieu" th:value="${kieu}">
+
+            <div th:if="${kieu == 'ngay'}" class="col-md-4">
+                <label class="form-label fw-semibold">Chọn ngày:</label>
+                <input type="date" class="form-control" name="keyword" th:value="${keyword}">
+            </div>
+
+            <div th:if="${kieu == 'thang'}" class="col-md-4">
+                <label class="form-label fw-semibold">Chọn tháng:</label>
+                <input type="month" class="form-control" name="keyword" th:value="${keyword}">
+            </div>
+
+            <div th:if="${kieu == 'nam'}" class="col-md-4">
+                <label class="form-label fw-semibold">Nhập năm:</label>
+                <input type="number" class="form-control" name="keyword" min="2000" max="2100"
+                       placeholder="VD: 2025" th:value="${keyword}">
+            </div>
+
+            <div class="col-md-auto d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Tìm kiếm
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bảng thống kê -->
+    <div class="table-wrapper card-box">
+        <table class="table table-bordered table-hover align-middle text-center">
+            <thead class="table-primary">
+                <tr>
+                    <th>Thời gian</th>
+                    <th>Doanh thu bán hàng</th>
+                    <th>Chi phí nhập hàng</th>
+                    <th>Lợi nhuận</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(list)}">
+                    <td colspan="4" class="text-danger">Không có dữ liệu</td>
+                </tr>
+                <tr th:each="tk : ${list}">
+                    <td th:text="${tk.thoiGian}"></td>
+                    <td th:text="${#numbers.formatDecimal(tk.tongDoanhThu, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                    <td th:text="${#numbers.formatDecimal(tk.tongNhapHang, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                    <td th:text="${#numbers.formatDecimal(tk.loiNhuan, 0, 'COMMA', 0, 'POINT')} + ' đ'"
+                        th:classappend="${tk.loiNhuan < 0} ? 'text-danger' : 'text-success'"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

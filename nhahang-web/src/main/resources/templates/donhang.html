@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Đơn hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f1f1f1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        h2 { color: #212529; font-weight: bold; }
+        .section-card {
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+        .table thead th { background-color: #212529; color: white; }
+        .btn-sm { padding: 5px 12px; }
+        .form-label { font-weight: 600; }
+        .btn-dark { background-color: #212529; border: none; }
+        .btn-dark:hover { background-color: #1a1e21; }
+        .btn-outline-dark { color: #212529; border-color: #212529; }
+        .btn-outline-dark:hover { background-color: #212529; color: white; }
+        td, th { vertical-align: middle; }
+        .table td .multi-bans { display:inline-block; max-width:240px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+        /* Cải thiện checkbox chọn bàn */
+        .checkbox-list {
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            padding: 10px;
+            background: #fff;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .checkbox-list .form-check {
+            margin-bottom: 6px;
+        }
+        .form-check-label {
+            margin-left: 6px;
+            cursor: pointer;
+        }
+        .form-check-input:checked + .form-check-label {
+            background-color: #e9f5ff;
+            border-radius: 4px;
+            padding: 2px 5px;
+        }
+    </style>
+</head>
+<body class="container py-4">
+
+<div class="mb-3">
+    <a href="/" class="btn btn-outline-dark"><i class="fas fa-arrow-left"></i> Trang chủ</a>
+</div>
+
+<h2 class="text-center mb-4">Quản lý Đơn hàng</h2>
+
+<!-- FORM THÊM MỚI -->
+<div class="section-card">
+    <h5 class="mb-3"><i class="fas fa-plus-circle"></i> Thêm Đơn Hàng</h5>
+
+    <form th:action="@{/donhang/add}" method="post" class="row g-3">
+        <!-- BÀN: checkbox chọn nhiều -->
+        <div class="col-md-3">
+            <label class="form-label">Bàn (có thể chọn nhiều)</label>
+            <div class="checkbox-list form-control p-2">
+                <div class="form-check" th:each="b : ${bans}">
+                    <input class="form-check-input" type="checkbox" name="idBans"
+                           th:value="${b.id}" id="ban__${b.id}">
+                    <label class="form-check-label" th:for="${'ban__' + b.id}" th:text="${b.tenBan}"></label>
+                </div>
+            </div>
+            <small class="text-muted">Chọn một hoặc nhiều bàn trống bên dưới</small>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Khách hàng</label>
+            <select name="idKhachHang" class="form-select" required>
+                <option th:each="k : ${khachhangs}" th:value="${k.id}" th:text="${k.tenKH}"></option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Nhân viên</label>
+            <select name="idNhanVien" class="form-select" required>
+                <option th:each="n : ${nhanviens}" th:value="${n.id}" th:text="${n.tenNV}"></option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Trạng thái</label>
+            <input type="text" class="form-control" value="Đang xử lý" readonly />
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-dark">
+                <i class="fas fa-save"></i> Thêm đơn hàng
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- TÌM KIẾM -->
+<div class="section-card">
+    <form method="get" th:action="@{/donhang}">
+        <div class="input-group">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm theo KH hoặc NV..." class="form-control">
+            <button class="btn btn-outline-dark" type="submit"><i class="fas fa-search"></i></button>
+        </div>
+    </form>
+</div>
+
+<!-- DANH SÁCH ĐƠN HÀNG -->
+<div class="section-card">
+    <h5 class="mb-3"><i class="fas fa-list"></i> Danh Sách Đơn Hàng</h5>
+    <table class="table table-bordered table-striped text-center align-middle">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Mã ĐH</th>
+            <th>Bàn</th>
+            <th>Khách hàng</th>
+            <th>Nhân viên</th>
+            <th>Ngày tạo</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(donhangList)}">
+            <td colspan="9" class="text-danger">Không có đơn hàng nào</td>
+        </tr>
+
+        <tr th:each="dh : ${donhangList}">
+            <td th:text="${dh.id}"></td>
+            <td th:text="${dh.maDH}"></td>
+
+            <!-- Hiển thị bàn chính + bàn phụ -->
+            <td>
+                <div class="multi-bans">
+                    <span th:text="${dh.ban != null ? dh.ban.tenBan : 'Không có'}"></span>
+                    <span th:if="${dh.bansPhu != null and !#lists.isEmpty(dh.bansPhu)}">
+                        &nbsp;(
+                        <span th:each="b,iter : ${dh.bansPhu}"
+                              th:text="${b.tenBan + (iter.last ? '' : ', ')}"></span>
+                        )
+                    </span>
+                </div>
+            </td>
+
+            <td th:text="${dh.khachHang != null ? dh.khachHang.tenKH : ''}"></td>
+            <td th:text="${dh.nhanVien != null ? dh.nhanVien.tenNV : ''}"></td>
+            <td th:text="${dh.ngayTao != null ? #dates.format(dh.ngayTao,'dd/MM/yyyy') : ''}"></td>
+            <td th:text="${#numbers.formatDecimal(dh.tongTien,0,'COMMA',2,'POINT')}"></td>
+            <td th:text="${dh.trangThai == T(com.nhahang.nhahang_web.model.DonHang.TrangThaiDonHang).DANG_XU_LY ? 'Đang xử lý' : 'Đã thanh toán'}"></td>
+
+            <td>
+                <a th:href="@{'/donhang/edit/' + ${dh.id}}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
+                <a th:href="@{'/donhang/delete/' + ${dh.id}}" onclick="return confirm('Xác nhận xóa?')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>
+                <a th:href="@{/ctdonhang/donhang/{id}(id=${dh.id})}" class="btn btn-secondary btn-sm"><i class="fas fa-list-ul"></i> Chi tiết</a>
+                <a th:if="${dh.trangThai == T(com.nhahang.nhahang_web.model.DonHang.TrangThaiDonHang).DANG_XU_LY}"
+                   th:href="@{'/donhang/thanhtoan/' + ${dh.id}}"
+                   onclick="return confirm('Xác nhận thanh toán?')"
+                   class="btn btn-success btn-sm mt-1">
+                    <i class="fas fa-check"></i> Thanh toán
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sửa Nhà Cung Cấp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f9f9f9;
+            font-family: "Segoe UI", sans-serif;
+        }
+        h2 {
+            color: #fd7e14; /* Màu cam */
+            font-weight: 600;
+        }
+        .form-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-label {
+            font-weight: 600;
+        }
+        .btn-orange {
+            background-color: #fd7e14;
+            color: white;
+            border: none;
+        }
+        .btn-orange:hover {
+            background-color: #e46b10;
+            color: white;
+        }
+    </style>
+</head>
+<body class="container py-5">
+
+<div class="mb-4">
+    <a href="/ncc" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+<h2 class="text-center mb-3">Chỉnh Sửa Nhà Cung Cấp</h2>
+
+<div class="form-card">
+    <form id="formEdit" th:action="@{/ncc/update}" method="post" th:object="${ncc}" class="needs-validation" novalidate>
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="mb-3">
+            <label class="form-label">Mã NCC</label>
+            <input type="text" class="form-control" th:field="*{maNCC}" readonly>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Tên NCC</label>
+            <input type="text" class="form-control" th:field="*{tenNCC}" required>
+            <div class="invalid-feedback">Tên nhà cung cấp không được để trống</div>
+            <div class="text-danger mt-1" th:if="${#fields.hasErrors('tenNCC')}" th:errors="*{tenNCC}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Địa chỉ</label>
+            <input type="text" class="form-control" th:field="*{diaChi}" required>
+            <div class="invalid-feedback">Địa chỉ không được để trống</div>
+            <div class="text-danger mt-1" th:if="${#fields.hasErrors('diaChi')}" th:errors="*{diaChi}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Số điện thoại</label>
+            <input type="text" class="form-control" th:field="*{soDienThoai}" required pattern="^\d{10}$" maxlength="10">
+            <div class="invalid-feedback">SĐT phải đúng 10 chữ số</div>
+            <div class="text-danger mt-1" th:if="${#fields.hasErrors('soDienThoai')}" th:errors="*{soDienThoai}"></div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" th:field="*{email}" required pattern=".+@gmail\.com">
+            <div class="invalid-feedback">Email phải có định dạng @gmail.com</div>
+            <div class="text-danger mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a href="/ncc" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Hủy
+            </a>
+            <button type="submit" class="btn btn-orange">
+                <i class="fas fa-save"></i> Cập nhật
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Kích hoạt Bootstrap validation
+    (() => {
+        const form = document.getElementById("formEdit");
+        form.addEventListener("submit", function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add("was-validated");
+        });
+    })();
+</script>
+
+</body>
+</html>

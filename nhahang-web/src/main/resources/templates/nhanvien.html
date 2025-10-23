@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Nhân Viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f9f9f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        h2 {
+            color: #20c997; /* teal */
+            font-weight: 600;
+        }
+        .search-bar, .form-add, .table-wrapper {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #20c997;
+            box-shadow: 0 4px 15px rgba(32, 201, 151, 0.1);
+        }
+        .table {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(32, 201, 151, 0.05);
+        }
+        .btn-sm i {
+            margin-right: 4px;
+        }
+        .btn-primary, .btn-outline-primary {
+            background-color: #20c997;
+            border-color: #20c997;
+        }
+        .btn-primary:hover, .btn-outline-primary:hover {
+            background-color: #198754;
+            border-color: #157347;
+        }
+        .btn-success {
+            background-color: #20c997;
+            border-color: #20c997;
+        }
+        .btn-success:hover {
+            background-color: #198754;
+            border-color: #157347;
+        }
+        .table-primary {
+            background-color: #d1f2eb;
+        }
+    </style>
+</head>
+<body class="container py-4">
+
+    <div class="mb-3">
+        <a href="/" class="btn btn-outline-secondary">
+            <i class="fas fa-home"></i> Trang chủ
+        </a>
+    </div>
+
+    <h2 class="text-center mb-4">Quản Lý Nhân Viên</h2>
+
+    <!-- Tìm kiếm -->
+    <div class="search-bar mb-4">
+        <form th:action="@{/nhanvien}" method="get" class="input-group">
+            <input type="text" class="form-control" name="keyword" th:value="${keyword}" placeholder="Tìm theo mã, tên hoặc chức vụ">
+            <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i> Tìm</button>
+        </form>
+    </div>
+
+    <!-- Form thêm -->
+    <div class="form-add mb-4">
+        <form th:action="@{/nhanvien/add}" method="post" th:object="${nhanvien}" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" class="form-control" th:field="*{maNV}" placeholder="Mã NV" required>
+                <div class="text-danger" th:errors="*{maNV}"></div>
+            </div>
+            <div class="col-md-4">
+                <input type="text" class="form-control" th:field="*{tenNV}" placeholder="Tên NV" required>
+                <div class="text-danger" th:errors="*{tenNV}"></div>
+            </div>
+            <div class="col-md-4">
+                <input type="text" class="form-control" th:field="*{chucVu}" placeholder="Chức vụ" required>
+                <div class="text-danger" th:errors="*{chucVu}"></div>
+            </div>
+
+            <div class="col-md-4">
+                <input type="date" class="form-control" th:field="*{ngaySinh}" required>
+                <div class="text-danger" th:errors="*{ngaySinh}"></div>
+            </div>
+            <div class="col-md-4">
+                <input type="text" class="form-control" th:field="*{sdt}" placeholder="SĐT (10 số)" required>
+                <div class="text-danger" th:errors="*{sdt}"></div>
+            </div>
+            <div class="col-md-4">
+                <input type="email" class="form-control" th:field="*{email}" placeholder="Email (@gmail.com)" required>
+                <div class="text-danger" th:errors="*{email}"></div>
+            </div>
+
+            <div class="col-md-12">
+                <input type="text" class="form-control" th:field="*{diaChi}" placeholder="Địa chỉ" required>
+                <div class="text-danger" th:errors="*{diaChi}"></div>
+            </div>
+
+            <div class="col-md-12 text-end">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-plus-circle"></i> Thêm mới
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Thông báo -->
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <!-- Bảng danh sách -->
+    <div class="table-wrapper">
+        <table class="table table-bordered table-hover align-middle text-center">
+            <thead class="table-primary">
+                <tr>
+                    <th>ID</th>
+                    <th>Mã NV</th>
+                    <th>Tên NV</th>
+                    <th>Chức vụ</th>
+                    <th>Ngày sinh</th>
+                    <th>SĐT</th>
+                    <th>Email</th>
+                    <th>Địa chỉ</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="nv : ${list}">
+                    <td th:text="${nv.id}"></td>
+                    <td th:text="${nv.maNV}"></td>
+                    <td th:text="${nv.tenNV}"></td>
+                    <td th:text="${nv.chucVu}"></td>
+                    <td th:text="${nv.ngaySinh != null ? nv.ngaySinh.toString() : ''}"></td>
+                    <td th:text="${nv.sdt}"></td>
+                    <td th:text="${nv.email}"></td>
+                    <td th:text="${nv.diaChi}"></td>
+                    <td>
+                        <a th:href="@{/nhanvien/edit/{id}(id=${nv.id})}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i> Sửa
+                        </a>
+                        <a th:href="@{/nhanvien/delete/{id}(id=${nv.id})}" onclick="return confirm('Xác nhận xoá?')" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i> Xoá
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${list.size() == 0}">
+                    <td colspan="9" class="text-danger">Không có dữ liệu.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

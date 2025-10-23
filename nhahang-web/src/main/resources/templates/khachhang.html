@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Khách hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        h2 {
+            color: #6c757d;
+            font-weight: bold;
+        }
+        .section-card {
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+        .table thead th {
+            background-color: #6c757d;
+            color: white;
+        }
+        .form-label {
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="container py-4">
+
+<div class="mb-3">
+    <a href="/" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Trang chủ</a>
+</div>
+
+<h2 class="text-center mb-4">Quản lý Khách hàng</h2>
+
+<!-- Form thêm khách hàng -->
+<div class="section-card">
+    <h5 class="mb-3"><i class="fas fa-user-plus"></i> Thêm Khách Hàng</h5>
+    <form th:action="@{/khachhang/add}" th:object="${khachhang}" method="post" class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Mã KH</label>
+            <input type="text" class="form-control" th:field="*{maKH}" required>
+            <div class="text-danger" th:errors="*{maKH}"></div>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Tên KH</label>
+            <input type="text" class="form-control" th:field="*{tenKH}" required>
+            <div class="text-danger" th:errors="*{tenKH}"></div>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">SĐT</label>
+            <input type="text" class="form-control" th:field="*{sdt}" required pattern="\d{10}" title="Số điện thoại phải đúng 10 chữ số">
+            <div class="text-danger" th:errors="*{sdt}"></div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" th:field="*{email}" required pattern="^[\\w.-]+@gmail\\.com$" title="Email phải có định dạng đúng và kết thúc bằng @gmail.com">
+            <div class="text-danger" th:errors="*{email}"></div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Địa chỉ</label>
+            <input type="text" class="form-control" th:field="*{diaChi}" required>
+            <div class="text-danger" th:errors="*{diaChi}"></div>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-secondary"><i class="fas fa-save"></i> Thêm khách hàng</button>
+        </div>
+    </form>
+</div>
+
+<!-- Tìm kiếm -->
+<div class="section-card">
+    <form method="get">
+        <div class="input-group">
+            <input type="text" name="keyword" class="form-control" placeholder="Tìm theo tên hoặc SĐT..." th:value="${keyword}">
+            <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
+        </div>
+    </form>
+</div>
+
+<!-- Danh sách khách hàng -->
+<div class="section-card">
+    <h5 class="mb-3"><i class="fas fa-users"></i> Danh Sách Khách Hàng</h5>
+    <table class="table table-bordered table-striped text-center align-middle">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Mã KH</th>
+            <th>Tên KH</th>
+            <th>SĐT</th>
+            <th>Email</th>
+            <th>Địa chỉ</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="kh : ${list}">
+            <td th:text="${kh.id}"></td>
+            <td th:text="${kh.maKH}"></td>
+            <td th:text="${kh.tenKH}"></td>
+            <td th:text="${kh.sdt}"></td>
+            <td th:text="${kh.email}"></td>
+            <td th:text="${kh.diaChi}"></td>
+            <td>
+                <a th:href="@{'/khachhang/edit/' + ${kh.id}}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
+                <a th:href="@{'/khachhang/delete/' + ${kh.id}}" onclick="return confirm('Xác nhận xóa?')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

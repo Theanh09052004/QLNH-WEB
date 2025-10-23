@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết tài khoản và đổi mật khẩu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #e6f7ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        h3 {
+            color: #0d6efd;
+            font-weight: bold;
+        }
+
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+
+        .btn-outline-secondary {
+            color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+
+        .btn-success {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .btn-success:hover {
+            background-color: #0b5ed7;
+            border-color: #0b5ed7;
+        }
+
+        .text-success {
+            color: #198754 !important;
+        }
+
+        .text-danger {
+            color: #dc3545 !important;
+        }
+
+        label {
+            font-weight: 500;
+        }
+
+        .w-50 {
+            max-width: 500px;
+        }
+
+        /* Icon con mắt trong ô mật khẩu */
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .password-wrapper .toggle-password:hover {
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body class="container py-4">
+
+    <!-- Nút quay lại trang chủ -->
+    <div class="mb-3">
+        <a th:href="@{/}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Trang chủ</a>
+    </div>
+
+    <h3 class="mb-3">Chi tiết tài khoản</h3>
+
+    <!-- Thông tin tài khoản -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <p><strong>Tên đăng nhập:</strong> <span th:text="${username}">guest</span></p>
+        <p><strong>Họ tên:</strong> <span id="userHoTen">...</span></p>
+        <p><strong>Email:</strong> <span id="userEmail">...</span></p>
+        <p><strong>Role:</strong> <span id="userRole">...</span></p>
+        <div id="userInfoError" class="text-danger mt-2"></div>
+      </div>
+    </div>
+
+    <!-- Form đổi mật khẩu -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Đổi mật khẩu</h5>
+        <form id="changePasswordForm" class="w-50">
+          <!-- Mật khẩu hiện tại -->
+          <div class="mb-3 password-wrapper">
+            <label>Mật khẩu hiện tại</label>
+            <input type="password" class="form-control" id="currentPassword" required>
+            <i class="fas fa-eye-slash toggle-password" toggle="#currentPassword"></i>
+          </div>
+          <!-- Mật khẩu mới -->
+          <div class="mb-3 password-wrapper">
+            <label>Mật khẩu mới</label>
+            <input type="password" class="form-control" id="newPassword" required>
+            <i class="fas fa-eye-slash toggle-password" toggle="#newPassword"></i>
+          </div>
+          <!-- Xác nhận mật khẩu mới -->
+          <div class="mb-3 password-wrapper">
+            <label>Xác nhận mật khẩu mới</label>
+            <input type="password" class="form-control" id="confirmPassword" required>
+            <i class="fas fa-eye-slash toggle-password" toggle="#confirmPassword"></i>
+          </div>
+          <button type="submit" class="btn btn-success"><i class="fas fa-key"></i> Đổi mật khẩu</button>
+        </form>
+        <div id="changePasswordMessage" class="mt-2"></div>
+      </div>
+    </div>
+
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", function () {
+    const username = /*[[${username}]]*/ 'guest';
+
+    // ===== Lấy thông tin tài khoản =====
+    fetch('/taikhoan/current?username=' + username)
+      .then(res => {
+        if (!res.ok) throw new Error("Không tìm thấy thông tin tài khoản");
+        return res.json();
+      })
+      .then(data => {
+        if (data) {
+          document.getElementById("userHoTen").textContent = data.hoTen || '';
+          document.getElementById("userEmail").textContent = data.email || '';
+          document.getElementById("userRole").textContent = data.role || '';
+        }
+      })
+      .catch(err => {
+        document.getElementById("userInfoError").textContent = err.message;
+      });
+
+    // ===== Xử lý đổi mật khẩu =====
+    document.getElementById("changePasswordForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const body = {
+            currentPassword: document.getElementById("currentPassword").value,
+            newPassword: document.getElementById("newPassword").value,
+            confirmPassword: document.getElementById("confirmPassword").value
+        };
+
+        fetch('/taikhoan/change-password?username=' + username, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(body)
+        })
+        .then(res => res.text())
+        .then(msg => {
+            if (msg.includes("thành công")) {
+                document.getElementById("changePasswordMessage").innerHTML =
+                    '<span class="text-success">' + msg + '</span>';
+                document.getElementById("changePasswordForm").reset();
+            } else {
+                document.getElementById("changePasswordMessage").innerHTML =
+                    '<span class="text-danger">' + msg + '</span>';
+            }
+        })
+        .catch(() => {
+            document.getElementById("changePasswordMessage").innerHTML =
+                '<span class="text-danger">Lỗi hệ thống</span>';
+        });
+    });
+
+    // ===== Toggle hiển thị mật khẩu =====
+    const toggleIcons = document.querySelectorAll(".toggle-password");
+    toggleIcons.forEach(icon => {
+        icon.addEventListener("click", function () {
+            const input = document.querySelector(this.getAttribute("toggle"));
+            if (input.type === "password") {
+                input.type = "text";
+                this.classList.remove("fa-eye-slash");
+                this.classList.add("fa-eye");
+            } else {
+                input.type = "password";
+                this.classList.remove("fa-eye");
+                this.classList.add("fa-eye-slash");
+            }
+        });
+    });
+});
+</script>
+
+</body>
+</html>
